@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 prepare_destiny_folder() {
   rm -rf ./$destiny_folder
   mkdir ./$destiny_folder
@@ -14,9 +13,11 @@ create_watermark() {
 }
 
 add_watermark() {
-  for file in $@; do
+  for file_path in $@; do
+    curr_folder=$(echo $file_path | awk -F'/[^/]*$' '{print $1}')
+    filename=$(echo $file_path | sed 's:.*/::')
     composite -dissolve 20% -tile $watermark_file \
-      $file "$destiny_folder/$file"
+      $file_path "$curr_folder$destiny_folder/$filename"
   done
 }
 
@@ -82,7 +83,7 @@ main() {
     selected_file=$(echo $selected_file | sed 's:.*/::')
     files=($selected_file)
   else
-    files=$(ls $IMAGES_PATH | egrep $permit_extensions)
+    files=$(ls -d $IMAGES_PATH/* | egrep $permit_extensions)
   fi
 
   apply_watermark_all_files $files
